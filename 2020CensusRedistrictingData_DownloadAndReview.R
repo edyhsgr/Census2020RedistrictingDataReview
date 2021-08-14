@@ -563,8 +563,8 @@ Tabulation<-do.call("rbind",Tabulations)
 mean(Tabulation$AbsPctError)
 median(Tabulation$AbsPctError)
 
-##Write the dataframe out to a csv file
+##Write the dataframe OUTPUT out to a csv file
 #setwd("YOUR WORKING DIRECTORY FOR FILE OUTPUT")
-#write.table(Tabulation,file="Tabulation.csv",sep=",",row.names=FALSE)
+#write.table(Tabulation,file="Tabulation_Counties.csv",sep=",",row.names=FALSE)
 
 
