@@ -7,7 +7,7 @@
 	##US Census Bureau's 2020 Evaluation Estimates are accessed via https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-cities-and-towns-total.html
 	##
 	##To make the code work, you should be able to simply select-all, and copy and paste into an R command line 
-	##It takes a *long* time to run though (a minute or two per state?), including to download and read-in the zip files, unfortunately
+	##It takes a *long* time to run though (a minute per state?), including to download and read-in the zip files, unfortunately
 	##Users can change it to tabulate one or any selected states too though (see INPUTS)
 	##August 2021
 
