@@ -14,7 +14,8 @@ https://www2.census.gov/programs-surveys/decennial/rdo/about/2020-census-program
 US Census Bureau's 2020 Evaluation Estimates are accessed via 
 https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-cities-and-towns-total.html.
 
-Except for FILE DOWNLOAD (commented out), to make the code work, you should be able to simply select-all, and copy and paste into an R command line.
+Except for FILE DOWNLOAD (commented out - can simply remove the commenting to allow download), to make the code work, 
+users should be able to simply select-all, and copy and paste into an R command line.
 
 It takes a long time to run though (a minute per state?), unfortunately.
 
