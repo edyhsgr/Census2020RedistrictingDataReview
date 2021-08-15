@@ -570,7 +570,7 @@ evalHUestimates<-data.frame(read.csv(file="https://www2.census.gov/programs-surv
 	header=TRUE,colClasses="character"))
 evalestimates<-merge(evalPOPestimates,evalHUestimates[,c("STATE","COUNTY","HUESTIMATESBASE2010","HUESTIMATE042020")],by.x=c("STATE","COUNTY"),by.y=c("STATE","COUNTY"))
 for (i in 9:ncol(evalestimates)) {evalestimates[,i]<-as.numeric(evalestimates[,i])}
-evalestimates$HUBasedPop042020<-evalestimates$ESTIMATESBASE2010/evalestimates$HUESTIMATESBASE2010*evalestimates$HUESTIMATE042020
+evalestimates$HUBasedPop042020<-round(evalestimates$ESTIMATESBASE2010/evalestimates$HUESTIMATESBASE2010*evalestimates$HUESTIMATE042020,0)
 
 ##Apply the function with the input data (slow - maybe one minute per state?)
 Tabulations<-list()
