@@ -12,6 +12,10 @@
 	##Except for FILE DOWNLOAD (commented out), to make the code work, you should be able to simply select-all, and copy and paste into an R command line 
 	##It takes a very long time to run though (a minute per state?), unfortunately
 	##Users can change it to tabulate one or any selected states too though (see INPUTS)
+	##
+	##There is no warranty for this code
+	##Questions and comments are welcome, of course (edyhsgr@gmail.com)
+	##
 	##August 2021
 
 ##Set the directory you're working in for file access
@@ -35,7 +39,7 @@ geogarea<-"counties"
 
 ####################
 ##FILE DOWNLOAD from the US Census Bureau's website, if not already done 
-##	(note: repeated downloads of the same file this way can give an error: "HTTP status was '304 Not Modified'")
+##	(note: repeated downloads of the same file this way can give an error: "HTTP status was '304 Not Modified'" I think due to a re-direct? Not sure)
 #for (i in 1:length(state)) {
 #	download.file(paste(text=c("https://www2.census.gov/programs-surveys/decennial/2020/data/01-Redistricting_File--PL_94-171/",
 #	statename[i],"/",state[i],"2020.pl.zip"),collapse=""),
