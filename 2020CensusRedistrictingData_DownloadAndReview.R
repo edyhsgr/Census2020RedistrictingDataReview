@@ -12,6 +12,34 @@
 	##Users can change it to tabulate one or any selected states too though (see INPUTS)
 	##August 2021
 
+##Set the directory you're working in for file access
+setwd("C:/Users/ehunsing/Desktop")
+
+####################
+##User INPUTS
+state<-c("al","ak","az","ar","ca","co","ct","de","fl","ga",
+	"hi","id","il","in","ia","ks","ky","la","me","md",
+	"ma","mi","mn","ms","mo","mt","ne","nv","nh","nj",
+	"nm","ny","nc","nd","oh","ok","or","pa","ri","sc",
+	"sd","tn","tx","ut","vt","va","wa","wv","wi","wy")
+statename<-c("Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia",
+		"Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland",
+		"Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New_Hampshire",
+		"New_Jersey","New_Mexico","New_York","North_Carolina","North_Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode_Island","South_Carolina",
+ 		"South_Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West_Virginia","Wisconsin","Wyoming")
+field<-"POP100"
+geogarea<-"counties"	
+####################
+
+####################
+##Download the files from the US Census Bureau's website, if not already done 
+#	##(note: repeated downloads of the same file this way can give an error: "HTTP status was '304 Not Modified'")
+#for (i in 1:length(state)) {
+#download.file(paste(text=c("https://www2.census.gov/programs-surveys/decennial/2020/data/01-Redistricting_File--PL_94-171/",
+#	statename[i],"/",state[i],"2020.pl.zip"),collapse=""),
+#	destfile=paste(text=c("Census2020RedistrictingFiles/",state[i],".zip"),collapse=""))}
+####################
+
 ####################
 ##Tabulation FUNCTION
 Tabulate<-function(state,statename,geogarea,field,evalestimates) {
@@ -34,13 +62,10 @@ Tabulate<-function(state,statename,geogarea,field,evalestimates) {
 #part2  <- read.delim(part2_file_path,  header=FALSE, colClasses="character", sep="|")
 #part3  <- read.delim(part3_file_path,  header=FALSE, colClasses="character", sep="|")
 ##Replacement portion
-temp <- tempfile()
-download.file(paste(text=c("https://www2.census.gov/programs-surveys/decennial/2020/data/01-Redistricting_File--PL_94-171/",statename,"/",state,"2020.pl.zip"),collapse=""),temp)
-header <- read.delim(unz(temp,paste(text=c(state,"geo2020.pl"),collapse="")), header=FALSE, colClasses="character", sep="|")
-part1  <- read.delim(unz(temp,paste(text=c(state,"000012020.pl"),collapse="")), header=FALSE, colClasses="character", sep="|")
-part2  <- read.delim(unz(temp,paste(text=c(state,"000022020.pl"),collapse="")), header=FALSE, colClasses="character", sep="|")
-part3  <- read.delim(unz(temp,paste(text=c(state,"000032020.pl"),collapse="")), header=FALSE, colClasses="character", sep="|")
-unlink(temp)
+header <- read.delim(unz(paste(c("Census2020RedistrictingFiles/",state,".zip"),collapse=""),paste(text=c(state,"geo2020.pl"),collapse="")), header=FALSE, colClasses="character", sep="|")
+part1  <- read.delim(unz(paste(c("Census2020RedistrictingFiles/",state,".zip"),collapse=""),paste(text=c(state,"000012020.pl"),collapse="")), header=FALSE, colClasses="character", sep="|")
+part2  <- read.delim(unz(paste(c("Census2020RedistrictingFiles/",state,".zip"),collapse=""),paste(text=c(state,"000022020.pl"),collapse="")), header=FALSE, colClasses="character", sep="|")
+part3  <- read.delim(unz(paste(c("Census2020RedistrictingFiles/",state,".zip"),collapse=""),paste(text=c(state,"000032020.pl"),collapse="")), header=FALSE, colClasses="character", sep="|")
 ##End of replacement portion
 
 # -----------------------------
@@ -536,22 +561,6 @@ rownames(combine) <- 1:nrow(combine)
 	return(Tabulation=Tabulation)}
 ####################
 
-#####
-##User INPUTS for the above Tabulate() function
-state<-c("al","ak","az","ar","ca","co","ct","de","fl","ga",
-	"hi","id","il","in","ia","ks","ky","la","me","md",
-	"ma","mi","mn","ms","mo","mt","ne","nv","nh","nj",
-	"nm","ny","nc","nd","oh","ok","or","pa","ri","sc",
-	"sd","tn","tx","ut","vt","va","wa","wv","wi","wy")
-statename<-c("Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia",
-		"Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland",
-		"Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New_Hampshire",
-		"New_Jersey","New_Mexico","New_York","North_Carolina","North_Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode_Island","South_Carolina",
-		"South_Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West_Virginia","Wisconsin","Wyoming")
-field<-"POP100"
-geogarea<-"counties"	
-#####
-
 ##Read in the evaluation estimates data, including for total population and housing units - 
 	##then apply housing unit data to make housing unit-based pop
 evalPOPestimates<-data.frame(read.csv(file="https://www2.census.gov/programs-surveys/popest/datasets/2010-2020/counties/totals/co-est2020.csv",
@@ -565,6 +574,7 @@ evalestimates$HUBasedPop042020<-evalestimates$ESTIMATESBASE2010/evalestimates$HU
 ##Apply the function with the input data
 Tabulations<-list()
 for (i in 1:length(state)) {
+	print(statename[i])
 	Tabulations[[i]]<-Tabulate(state[i],statename[i],geogarea,field,evalestimates)}
 
 ##Make a single data frame
@@ -577,6 +587,5 @@ mean(Tabulation$AbsPctError_HUBasedPop)
 median(Tabulation$AbsPctError_HUBasedPop)
 
 ##Write the dataframe OUTPUT out to a csv file
-#setwd("YOUR WORKING DIRECTORY FOR FILE OUTPUT")
 #write.table(Tabulation,file="Tabulation_Counties.csv",sep=",",row.names=FALSE)
 
