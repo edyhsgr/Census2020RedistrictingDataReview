@@ -7,7 +7,7 @@
 	##US Census Bureau's 2020 Evaluation Estimates are accessed via https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-cities-and-towns-total.html
 	##
 	##To make the code work, you should be able to simply select-all, and copy and paste into an R command line 
-	##It takes a *long* time to run though (a minute per state?), including to download and read-in the zip files, unfortunately
+	##It takes a very long time to run though (a minute per state?), including to download and read-in the zip files, unfortunately
 	##Users can change it to tabulate one or any selected states too though (see INPUTS)
 	##August 2021
 
@@ -519,14 +519,17 @@ rownames(combine) <- 1:nrow(combine)
 	names(Selection)<-c("SUMLEV","STATE","COUNTY","NAME","CENSUS2020")
 	##Select rows (geography) of interest and merge any other tables
 	Tabulation<-data.frame(subset(Selection,SUMLEV=="050"))
-	Tabulation<-merge(Tabulation,evalestimates[,c("STATE","COUNTY","POPESTIMATE042020")],by.x=c("STATE","COUNTY"),by.y=c("STATE","COUNTY"))
+	Tabulation<-merge(Tabulation,evalestimates[,c("STATE","COUNTY","POPESTIMATE042020","HUBasedPop042020")],by.x=c("STATE","COUNTY"),by.y=c("STATE","COUNTY"))
 		
 	##Calculate additional values of interest
-	Tabulation$POPESTIMATE042020<-as.numeric(Tabulation$POPESTIMATE042020)
+	#Tabulation$POPESTIMATE042020<-as.numeric(Tabulation$POPESTIMATE042020)
 	Tabulation$CENSUS2020<-as.numeric(Tabulation$CENSUS2020)
 	Tabulation$Error<-Tabulation$POPESTIMATE042020-Tabulation$CENSUS2020
 	Tabulation$PctError<-Tabulation$Error/Tabulation$CENSUS2020*100
 	Tabulation$AbsPctError<-abs(Tabulation$PctError)
+	Tabulation$Error_HUBasedPop<-Tabulation$HUBasedPop042020-Tabulation$CENSUS2020
+	Tabulation$PctError_HUBasedPop<-Tabulation$Error_HUBasedPop/Tabulation$CENSUS2020*100
+	Tabulation$AbsPctError_HUBasedPop<-abs(Tabulation$PctError_HUBasedPop)
 
 	##Return list of data frames and end of function
 	return(Tabulation=Tabulation)}
@@ -548,9 +551,15 @@ field<-"POP100"
 geogarea<-"counties"	
 #####
 
-##Read in the evaluation estimates data
-evalestimates<-data.frame(read.csv(file="https://www2.census.gov/programs-surveys/popest/datasets/2010-2020/counties/totals/co-est2020.csv",
+##Read in the evaluation estimates data, including for total population and housing units - 
+	##then apply housing unit data to make housing unit-based pop
+evalPOPestimates<-data.frame(read.csv(file="https://www2.census.gov/programs-surveys/popest/datasets/2010-2020/counties/totals/co-est2020.csv",
 	header=TRUE,colClasses="character"))
+evalHUestimates<-data.frame(read.csv(file="https://www2.census.gov/programs-surveys/popest/datasets/2010-2020/housing/HU-EST2020_ALL.csv",
+	header=TRUE,colClasses="character"))
+evalestimates<-merge(evalPOPestimates,evalHUestimates[,c("STATE","COUNTY","HUESTIMATESBASE2010","HUESTIMATE042020")],by.x=c("STATE","COUNTY"),by.y=c("STATE","COUNTY"))
+for (i in 9:ncol(evalestimates)) {evalestimates[,i]<-as.numeric(evalestimates[,i])}
+evalestimates$HUBasedPop042020<-evalestimates$ESTIMATESBASE2010/evalestimates$HUESTIMATESBASE2010*evalestimates$HUESTIMATE042020
 
 ##Apply the function with the input data
 Tabulations<-list()
@@ -563,9 +572,10 @@ Tabulation<-do.call("rbind",Tabulations)
 ##Calculate and print values of interest
 mean(Tabulation$AbsPctError)
 median(Tabulation$AbsPctError)
+mean(Tabulation$AbsPctError_HUBasedPop)
+median(Tabulation$AbsPctError_HUBasedPop)
 
 ##Write the dataframe OUTPUT out to a csv file
 #setwd("YOUR WORKING DIRECTORY FOR FILE OUTPUT")
 #write.table(Tabulation,file="Tabulation_Counties.csv",sep=",",row.names=FALSE)
-
 
