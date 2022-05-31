@@ -567,6 +567,8 @@ rownames(combine) <- 1:nrow(combine)
 	return(Tabulation=Tabulation)}
 ####################
 
+####################
+##2020 tabulation
 ##Read in the evaluation estimates data, including for total population and housing units - 
 	##then apply housing unit data to make housing unit-based pop
 evalPOPestimates<-data.frame(read.csv(file="https://www2.census.gov/programs-surveys/popest/datasets/2010-2020/counties/totals/co-est2020.csv",
@@ -593,5 +595,50 @@ mean(Tabulation$AbsPctError_HUBasedPop)
 median(Tabulation$AbsPctError_HUBasedPop)
 
 ##Write the dataframe OUTPUT out to a csv file
-#write.table(Tabulation,file="Tabulation_Counties.csv",sep=",",row.names=FALSE)
+#write.table(Tabulation,file="Tabulation_Counties_2020.csv",sep=",",row.names=FALSE)
+####################
+
+####################
+##2010 tabulation for comparison
+Tabulation_2010<-data.frame(read.csv(file="https://raw.githubusercontent.com/edyhsgr/Census2020RedistrictingDataReview/main/nhgis_ds171_2010_county_Extract.csv",
+	header=TRUE,skip=1,colClasses="character"))
+Tabulation_2010$Full.Name<-paste(Tabulation_2010$County.Name,Tabulation_2010$State.Name)
+Tabulation_2010<-Tabulation_2010[Tabulation_2010$Region.Code!=9,]
+Tabulation_2010$State.Code<-substr(Tabulation_2010$GIS.Join.Match.Code,2,3)
+Tabulation_2010$County.Code<-substr(Tabulation_2010$GIS.Join.Match.Code,5,7)
+colnames(Tabulation_2010)[8]<-"CENSUS2010"
+
+##Read in the 2010 evaluation estimates data, including for total population and housing units - 
+	##then apply housing unit data to make housing unit-based pop
+evalPOPestimates_2010<-data.frame(read.csv(file="https://www2.census.gov/programs-surveys/popest/datasets/2010/2010-eval-estimates/co-est2010-totals.csv",
+	header=TRUE,colClasses="character"))
+evalHUestimates_2010<-data.frame(read.csv(file="https://www2.census.gov/programs-surveys/popest/datasets/2010/2010-eval-estimates/hu-est2010.csv",
+	header=TRUE,colClasses="character")) #NOTE there is also: https://www2.census.gov/programs-surveys/popest/datasets/2010/2010-eval-estimates/hu-est2010-alt.csv 
+evalestimates_2010<-merge(evalPOPestimates_2010,evalHUestimates_2010[,c("state","county","huestbase2000","huest_042010")],by.x=c("STATE","COUNTY"),by.y=c("state","county"))
+for (i in 8:ncol(evalestimates_2010)) {evalestimates_2010[,i]<-as.numeric(evalestimates_2010[,i])}
+evalestimates_2010$HUBasedPop042010<-round(evalestimates_2010$ESTIMATESBASE2000/evalestimates_2010$huestbase2000*evalestimates_2010$huest_042010,0)
+evalestimates_2010$FULLNAME<-paste(evalestimates_2010$CTYNAME,evalestimates_2010$STNAME)
+
+Tabulation_2010<-merge(Tabulation_2010,evalestimates_2010[,c("STATE","COUNTY","POPESTIMATE042010","HUBasedPop042010")],
+	by.x=c("State.Code","County.Code"),by.y=c("STATE","COUNTY"),all.x=TRUE)
+		
+##Calculate additional values of interest
+Tabulation_2010$CENSUS2010<-as.numeric(Tabulation_2010$CENSUS2010)
+Tabulation_2010$Error<-Tabulation_2010$POPESTIMATE042010-Tabulation_2010$CENSUS2010
+Tabulation_2010$PctError<-Tabulation_2010$Error/Tabulation_2010$CENSUS2010*100
+Tabulation_2010$AbsPctError<-abs(Tabulation_2010$PctError)
+Tabulation_2010$Error_HUBasedPop<-Tabulation_2010$HUBasedPop042010-Tabulation_2010$CENSUS2010
+Tabulation_2010$PctError_HUBasedPop<-Tabulation_2010$Error_HUBasedPop/Tabulation_2010$CENSUS2010*100
+Tabulation_2010$AbsPctError_HUBasedPop<-abs(Tabulation_2010$PctError_HUBasedPop)
+
+##Calculate and print values of interest
+mean(Tabulation_2010$AbsPctError)
+median(Tabulation_2010$AbsPctError)
+mean(Tabulation_2010$AbsPctError_HUBasedPop)
+median(Tabulation_2010$AbsPctError_HUBasedPop)
+
+##Write the dataframe OUTPUT out to a csv file
+#write.table(Tabulation_2010,file="Tabulation_Counties_2010.csv",sep=",",row.names=FALSE)
+####################
+
 
