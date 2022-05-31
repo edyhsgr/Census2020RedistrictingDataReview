@@ -1,0 +1,184 @@
+##########
+#REVIEW OF US CENSUS BUREAU'S 2010 AND 2020 EVALUATION ESTIMATES ERRORS - COUNTY TOTAL POPULATION
+#
+#RELATED 2020 CENSUS AND 2020 EVALUATION ESTIMATES DATA DOWNLOADED IN AUGUST 2021 FROM US CENSUS BUREAU
+#2010 CENSUS DATA DOWNLOADED IN MAY 2022 FROM IPUMS NHGIS, UNIVERSITY OF MINNESOTA; 2010 EVALUATION ESTIMATES DATA DOWNLOADED IN MAY 2022 FROM US CENSUS BUREAU
+#
+#EDDIE HUNSINGER, MAY 2022
+#https://edyhsgr.github.io/
+#
+#THERE IS NO WARRANTY FOR THIS CODE
+#THIS CODE HAS NOT BEEN TESTED AT ALL-- PLEASE LET ME KNOW IF YOU FIND ANY PROBLEMS (edyhsgr@gmail.com)
+##########
+
+library(shiny)
+
+CountyData_2020<-read.table(file="https://raw.githubusercontent.com/edyhsgr/Census2020RedistrictingDataReview/main/Tabulation_Counties_2020.csv",header=TRUE,sep=",")
+CountyData_2010<-read.table(file="https://raw.githubusercontent.com/edyhsgr/Census2020RedistrictingDataReview/main/Tabulation_Counties_2010.csv",header=TRUE,sep=",")
+
+statecode<-c(1,2,4,5,6,8,9,10,12,13,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,44,45,46,47,48,49,50,51,53,54,55,56)
+statename<-c("Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia",
+		"Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland",
+		"Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire",
+		"New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina",
+ 		"South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming")
+
+Names_State<-data.frame(statecode)
+Names_State$NAME_STATE<-statename
+
+CountyData_2020<-merge(CountyData_2020,Names_State,by.x="STATE",by.y="statecode",all.x=TRUE)
+CountyData_2020$NAME<-sub(" city"," City",CountyData_2020$NAME)
+CountyData_2020$NAME_FULL<-paste(CountyData_2020$NAME,CountyData_2020$NAME_STATE)
+
+Names<-CountyData_2020$NAME_FULL[CountyData_2020$NAME_FULL!="Chugach Census Area Alaska" & 
+						CountyData_2020$NAME_FULL!="Copper River Census Area Alaska" &
+						CountyData_2020$NAME_FULL!="Kusilvak Census Area Alaska" &
+						CountyData_2020$NAME_FULL!="Petersburg Borough Alaska" &						
+						CountyData_2020$NAME_FULL!="Prince of Wales-Hyder Census Area Alaska"]
+
+ui<-fluidPage(
+
+tags$h3("Review of US Census Bureau's 2010 and 2020 Evaluation Estimates, County Total Population Errors"),
+  
+hr(),
+
+sidebarLayout(
+sidebarPanel(
+
+selectizeInput(inputId = "County", label = "Select County", 
+choices = Names,
+options = list(placeholder = "Type in a county to see graphs", multiple = TRUE, maxOptions = 5000, onInitialize = I('function() { this.setValue(""); }'))
+),
+
+radioButtons("radio","",c("With Mean Absolute Percent Error (MAPE)" = 1, "With Median Absolute Percent Error (MedAPE)" = 2),selected = 1),
+
+hr(),
+
+p("2020 Census Redistricting data downloaded on August 15, 2021 from ",
+tags$a(href="https://www.census.gov/data/datasets/2020/dec/2020-census-redistricting-summary-file-dataset.html", 
+	"the U.S. Census Bureau. "),
+"2020 Evaluation Estimates downloaded on August 15, 2021 from ",
+tags$a(href="https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates.2020.html", 
+	"the U.S. Census Bureau."),
+"2010 Census Redistricting data downloaded on May 30, 2022 from ",
+tags$a(href="https://www.nhgis.org/", 
+	"IPUMS NHGIS, University of Minnesota."),
+"2010 Evaluation Estimates downloaded on May 30, 2022 from ",
+tags$a(href="https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates.2010.html", 
+	"the U.S. Census Bureau."),
+
+hr(),
+
+p("This interface was made with ",
+tags$a(href="https://shiny.rstudio.com/", 
+	"Shiny for R."),
+tags$a(href="https://github.com/edyhsgr/Census2020RedistrictingDataReview", 
+	"Related GitHub repository."),
+"May 2022.")),
+
+width=3
+),
+
+mainPanel(
+	
+	plotOutput("plots"),width=3)
+)
+)
+
+CountyData<-CountyData_2020
+
+server<-function(input, output) {	
+	output$plots<-renderPlot({
+par(mfrow=c(1,2)) #,mai=c(0.5,0.5,0.5,0.5))
+
+if(input$County!="") {
+
+if(input$radio==1) {
+	#####2010 Mean Errors
+	CountySelect_2010<-subset(CountyData_2010,CountyData_2010$Full.Name==input$County) 
+	
+	StateSelect_2010<-aggregate(CountyData_2010$AbsPctError,by=list(CountyData_2010$State.Name),FUN=mean)
+	names(StateSelect_2010)<-c("State.Name","MAPE_Counties")
+	County_StateSelect_2010<-merge(CountySelect_2010,StateSelect_2010,by="State.Name")
+	
+	MAPE_Counties_National_2010<-mean(CountyData_2010$AbsPctError)
+	
+	barplot(c(CountySelect_2010$AbsPctError,County_StateSelect_2010$MAPE_Counties,MAPE_Counties_National_2010),col=c(2,3,5),ylim=c(0,10),
+		names.arg=c(CountySelect_2010$County.Name,paste(c(CountySelect_2010$State.Name," Counties"),collapse=""),"Nationwide Counties"),cex.names=1.15,cex.axis=1.25,main="2010 Estimates Total Population Error",cex.main=1.5)
+	mtext(side=1,line=-CountySelect_2010$AbsPctError-1.5,adj=.14,text=paste(c("APE: ",round(CountySelect_2010$AbsPctError,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-County_StateSelect_2010$MAPE_Counties-1.5,adj=.5,text=paste(c("MAPE: ",round(County_StateSelect_2010$MAPE_Counties,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-MAPE_Counties_National_2010-1.5,adj=.86,text=paste(c("MAPE: ",round(MAPE_Counties_National_2010,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas.")),font=.65,cex=1)
+
+	#mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. 2020 Redistricting Data and Evaluation Estimates downloaded from the U.S. Census Bureau. 
+	#		2010 Redistricting Data downloaded from IPUMS NHGIS. 2010 Evaluation Estimates downloded from the U.S. Census Bureau."),collapse=""),font=.5,cex=1)
+	#####
+
+	#####2020 Mean Errors
+	CountySelect_2020<-subset(CountyData_2020,CountyData_2020$NAME_FULL==input$County) 
+	
+	StateSelect_2020<-aggregate(CountyData_2020$AbsPctError,by=list(CountyData_2020$STATE),FUN=mean)
+	names(StateSelect_2020)<-c("STATE","MAPE_Counties")
+	County_StateSelect_2020<-merge(CountySelect_2020,StateSelect_2020,by="STATE")
+		
+	MAPE_Counties_National_2020<-mean(CountyData_2020$AbsPctError)
+	
+	barplot(c(CountySelect_2020$AbsPctError,County_StateSelect_2020$MAPE_Counties,MAPE_Counties_National_2020),col=c(2,3,5),ylim=c(0,10),
+		names.arg=c(CountySelect_2020$NAME,paste(c(CountySelect_2020$NAME_STATE," Counties"),collapse=""),"Nationwide Counties"),cex.names=1.15,cex.axis=1.25,main="2020 Estimates Total Population Error",cex.main=1.5)
+	mtext(side=1,line=-CountySelect_2020$AbsPctError-1.5,adj=.14,text=paste(c("APE: ",round(CountySelect_2020$AbsPctError,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-County_StateSelect_2020$MAPE_Counties-1.5,adj=.5,text=paste(c("MAPE: ",round(County_StateSelect_2020$MAPE_Counties,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-MAPE_Counties_National_2020-1.5,adj=.86,text=paste(c("MAPE: ",round(MAPE_Counties_National_2020,2)),collapse=""),font=.5,cex=1)
+	#####
+	}
+
+if(input$radio==2) {
+	#####2010 Median Errors
+	CountySelect_2010<-subset(CountyData_2010,CountyData_2010$Full.Name==input$County) 
+	
+	StateSelect_2010<-aggregate(CountyData_2010$AbsPctError,by=list(CountyData_2010$State.Name),FUN=median)
+	names(StateSelect_2010)<-c("State.Name","MedAPE_Counties")
+	County_StateSelect_2010<-merge(CountySelect_2010,StateSelect_2010,by="State.Name")
+	
+	MedAPE_Counties_National_2010<-median(CountyData_2010$AbsPctError)
+	
+	barplot(c(CountySelect_2010$AbsPctError,County_StateSelect_2010$MedAPE_Counties,MedAPE_Counties_National_2010),col=c(2,3,5),ylim=c(0,10),
+		names.arg=c(CountySelect_2010$County.Name,paste(c(CountySelect_2010$State.Name," Counties"),collapse=""),"Nationwide Counties"),cex.names=1.15,cex.axis=1.25,main="2010 Estimates Total Population Error",cex.main=1.5)
+	mtext(side=1,line=-CountySelect_2010$AbsPctError-1.5,adj=.14,text=paste(c("APE: ",round(CountySelect_2010$AbsPctError,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-County_StateSelect_2010$MedAPE_Counties-1.5,adj=.5,text=paste(c("MedAPE: ",round(County_StateSelect_2010$MedAPE_Counties,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-MedAPE_Counties_National_2010-1.5,adj=.88,text=paste(c("MedAPE: ",round(MedAPE_Counties_National_2010,2)),collapse=""),font=.5,cex=1)
+
+	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas.")),font=.65,cex=1)
+	#mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. 2020 Redistricting Data and Evaluation Estimates downloaded from the U.S. Census Bureau. 
+	#		2010 Redistricting Data downloaded from IPUMS NHGIS. 2010 Evaluation Estimates downloded from the U.S. Census Bureau."),collapse=""),font=.5,cex=1)
+	#####
+
+	#####2020 Median Errors
+	CountySelect_2020<-subset(CountyData_2020,CountyData_2020$NAME_FULL==input$County) 
+	
+	StateSelect_2020<-aggregate(CountyData_2020$AbsPctError,by=list(CountyData_2020$STATE),FUN=median)
+	names(StateSelect_2020)<-c("STATE","MedAPE_Counties")
+	County_StateSelect_2020<-merge(CountySelect_2020,StateSelect_2020,by="STATE")
+	
+	MedAPE_Counties_National_2020<-median(CountyData_2020$AbsPctError)
+	
+	barplot(c(CountySelect_2020$AbsPctError,County_StateSelect_2020$MedAPE_Counties,MedAPE_Counties_National_2020),col=c(2,3,5),ylim=c(0,10),
+		names.arg=c(CountySelect_2020$NAME,paste(c(CountySelect_2020$NAME_STATE," Counties"),collapse=""),"Nationwide Counties"),cex.names=1.15,cex.axis=1.25,main="2020 Estimates Total Population Error",cex.main=1.5)
+	mtext(side=1,line=-CountySelect_2020$AbsPctError-1.5,adj=.14,text=paste(c("APE: ",round(CountySelect_2020$AbsPctError,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-County_StateSelect_2020$MedAPE_Counties-1.5,adj=.5,text=paste(c("MedAPE: ",round(County_StateSelect_2020$MedAPE_Counties,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-MedAPE_Counties_National_2020-1.5,adj=.88,text=paste(c("MedAPE: ",round(MedAPE_Counties_National_2020,2)),collapse=""),font=.5,cex=1)
+	#####
+	}
+
+}
+
+},height=625,width=1250)
+		
+}
+
+shinyApp(ui = ui, server = server)
+
+
+
+
+
+
