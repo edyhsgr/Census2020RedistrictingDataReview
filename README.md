@@ -13,8 +13,10 @@ https://www2.census.gov/programs-surveys/decennial/rdo/about/2020-census-program
 
 The US Census Bureau's 2020 Evaluation Estimates are accessed via 
 https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-cities-and-towns-total.html.
-And the US Census Bureau's 2020 Evalutation Estimates Housing Unit estimates are accessed via 
+The US Census Bureau's 2020 Evaluation Estimates Housing Unit estimates are accessed via 
 https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-totals-housing-units.html 
+The US Census Bureau's 2010 Evaluation Estimates (Population and Housing Unit) estimates are accessed via 
+https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates.2010.html
 	
 Except for FILE DOWNLOAD (commented out - can simply remove the commenting to allow download), to make the code work, 
 users should be able to simply select-all, and copy and paste into an R command line.
@@ -23,7 +25,8 @@ It takes a long time to run though (a minute per state?), unfortunately.
 
 Users can change it to tabulate one or any selected states too though (see INPUTS).
 
-Tabulations_County.csv, with the OUTPUT comparisons by county for each state, is provided too.
+Tabulations_County_2020.csv, with the OUTPUT comparisons by county for each state, and Tabulations_County_2010.csv with 2010 Census (via nhgis.org), 
+and 2010 Evaluation Estimates (via US Census Bureau) data, are provided too.
 
--Eddie Hunsinger, August 2021
+-Eddie Hunsinger, August 2021 (updated May 2022)
 
