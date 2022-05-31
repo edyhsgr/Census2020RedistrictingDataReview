@@ -1,5 +1,5 @@
-GISJOIN,YEAR,REGIONA,DIVISIONA,STATE,STATEA,COUNTY,H7Q001,2010 Census Redistricting Data tabulation downloaded from nhgis.org on 20220530
-GIS Join Match Code,Data File Year,Region Code,Division Code,State Name,State Code,County Name,Total,
+GISJOIN,YEAR,REGIONA,DIVISIONA,STATE,STATEA,COUNTY,H7Q001,Extract of 2010 Census Redistricting Data tabulation downloaded from nhgis.org on 20220530
+GIS Join Match Code,Data File Year,Region Code,Division Code,State Name,State Code,County Name,Total,Extract of 2010 Census Redistricting Data tabulation downloaded from nhgis.org on 20220530
 G0100010,2010,3,6,Alabama,1,Autauga County,54571,
 G0100030,2010,3,6,Alabama,1,Baldwin County,182265,
 G0100050,2010,3,6,Alabama,1,Barbour County,27457,
