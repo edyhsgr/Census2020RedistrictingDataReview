@@ -26,7 +26,7 @@ It takes a long time to run though (a minute per state?), unfortunately.
 Users can change it to tabulate one or any selected states too though (see INPUTS).
 
 Tabulations_County_2020.csv, with the OUTPUT comparisons by county for each state, and Tabulations_County_2010.csv with 2010 Census 
-(accessed via IPUMS NHGIS, https://www.nhgis.org/), and 2010 Evaluation Estimates (via US Census Bureau) data, are provided too.
+(accessed via IPUMS NHGIS, University of Minnesota, https://www.nhgis.org/), and 2010 Evaluation Estimates (via US Census Bureau) data, are provided too.
 
 EvalEstToCensusReview.R is a Shiny for R application: https://edyhsgr.shinyapps.io/EvalEstToCensusReview/ 
 to review US Census Bureau Evaluation Estimates county total population errors.
