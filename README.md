@@ -14,9 +14,9 @@ https://www2.census.gov/programs-surveys/decennial/rdo/about/2020-census-program
 The US Census Bureau's 2020 Evaluation Estimates are accessed via 
 https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-cities-and-towns-total.html.
 The US Census Bureau's 2020 Evaluation Estimates Housing Unit estimates are accessed via 
-https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-totals-housing-units.html 
+https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-totals-housing-units.html. 
 The US Census Bureau's 2010 Evaluation Estimates (Population and Housing Unit) estimates are accessed via 
-https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates.2010.html
+https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates.2010.html.
 	
 Except for FILE DOWNLOAD (commented out - can simply remove the commenting to allow download), to make the code work, 
 users should be able to simply select-all, and copy and paste into an R command line.
