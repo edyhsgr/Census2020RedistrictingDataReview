@@ -16,10 +16,10 @@
 	##There is no warranty for this code
 	##Questions and comments are welcome, of course (edyhsgr@gmail.com)
 	##
-	##August 2021
+	##August 2021 (updated to include 2010 county tabulation for comparison in May 2022)
 
 ##Set the directory you're working in for file access
-setwd("C:/Users/ehunsing/Desktop")
+setwd("C:/...")
 
 ####################
 ##User INPUTS
