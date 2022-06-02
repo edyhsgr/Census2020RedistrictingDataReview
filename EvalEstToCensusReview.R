@@ -32,11 +32,12 @@ CountyData_2020$NAME_FULL<-paste(CountyData_2020$NAME,CountyData_2020$NAME_STATE
 
 colnames(CountyData_2010)[1:11]<-c("StateCode","CountyCode","GISJoinMatchCode","DataFileYear","RegionCode","DivisionCode","StateName","CountyName","CENSUS2010","Comment","FullName")
 
-Names<-CountyData_2020$NAME_FULL[CountyData_2020$NAME_FULL!="Chugach Census Area Alaska" & 
+Names<-CountyData_2020$NAME_FULL[CountyData_2020$NAME_FULL!="Chugach Census Area Alaska" & ##NOTE: NEED TO REPAIR THIS SO SOME INFO IS AVAILABLE FOR THESE
 						CountyData_2020$NAME_FULL!="Copper River Census Area Alaska" &
 						CountyData_2020$NAME_FULL!="Kusilvak Census Area Alaska" &
 						CountyData_2020$NAME_FULL!="Petersburg Borough Alaska" &						
-						CountyData_2020$NAME_FULL!="Prince of Wales-Hyder Census Area Alaska"]
+						CountyData_2020$NAME_FULL!="Prince of Wales-Hyder Census Area Alaska" &
+				                CountyData_2020$NAME_FULL!="Oglala Lakota County South Dakota"]
 
 ui<-fluidPage(
 
@@ -107,7 +108,7 @@ legend("topleft",legend=c("Select a county with the panel to the left"),cex=1.5,
 
 if(input$County!="") {
 if(input$radio==1) {
-	#####2010 Mean Errors
+	#####2010 Mean Errors	##NOTE, SHOULD ADD SOMETHING MORE (THAN TEXT VALUE) TO IDENTIFY BARS THAT EXPAND OUTSIDE OF PLOT AREA
 	CountySelect_2010<-subset(CountyData_2010,CountyData_2010$FullName==input$County) 
 	
 	StateSelect_2010<-aggregate(CountyData_2010$AbsPctError,by=list(CountyData_2010$StateName),FUN=mean)
@@ -189,5 +190,4 @@ if(input$radio==2) {
 }
 
 shinyApp(ui = ui, server = server)
-
 
