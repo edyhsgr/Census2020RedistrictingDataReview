@@ -56,7 +56,7 @@ options = list(placeholder = "Type in a county to see graphs", multiple = TRUE, 
 
 radioButtons("radio","",c("Use Mean Absolute Percent Error (MAPE)" = 1, "Use Median Absolute Percent Error (MedAPE)" = 2),selected = 1),
 
-sliderInput("ITER","Sample size for error bound estimation",min=500,max=5000,value=1000,step=500),
+#sliderInput("ITER","Sample size for error bound estimation",min=500,max=5000,value=1000,step=500),
 
 hr(),
 
@@ -105,7 +105,8 @@ par(mfrow=c(1,2)) #,mai=c(0.5,0.5,0.5,0.5))
 
 ##GRAPHS
 
-iter<-input$ITER
+set.seed(2573212)
+iter<-1000	#input$ITER
 bootstrapper<-function(iter,data,low,high) { 
 	bootstrapMedian<-bootstrapMean<-array(,iter)
 	for(i in 1:length(bootstrapMean)) {
@@ -144,7 +145,7 @@ if(input$radio==1) {
 	mtext(side=1,line=-MAPE_Counties_National_2010-1.25,adj=.89,text=paste(c("MAPE: ",round(MAPE_Counties_National_2010,2)),collapse=""),cex=1)
 
 	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MAPE is mean absolute percent error. 
-The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling with replacement.")),cex=1.15)
+The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's data with replacement.")),cex=1.15)
 	#####
 
 	#####2020 Mean Errors
@@ -193,7 +194,7 @@ if(input$radio==2) {
 	mtext(side=1,line=-MedAPE_Counties_National_2010-1.25,adj=.89,text=paste(c("MedAPE: ",round(MedAPE_Counties_National_2010,2)),collapse=""),cex=1)
 
 	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MedAPE is median absolute percent error. 
-The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling with replacement.")),cex=1.15)
+The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's data with replacement.")),cex=1.15)
 	#####
 
 	#####2020 Median Errors
@@ -227,3 +228,4 @@ The error bars cover 90 percent of the uncertainty distribution for the respecti
 
 shinyApp(ui = ui, server = server)
 
+.
