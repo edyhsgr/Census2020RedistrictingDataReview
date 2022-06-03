@@ -4,7 +4,7 @@
 #2020 CENSUS AND 2020 EVALUATION ESTIMATES DATA DOWNLOADED IN AUGUST 2021 FROM US CENSUS BUREAU
 #2010 CENSUS DATA DOWNLOADED IN MAY 2022 FROM IPUMS NHGIS, UNIVERSITY OF MINNESOTA; 2010 EVALUATION ESTIMATES DATA DOWNLOADED IN MAY 2022 FROM US CENSUS BUREAU
 #
-#EDDIE HUNSINGER, MAY 2022
+#EDDIE HUNSINGER, MAY 2022 (UPDATED JUNE 2022)
 #https://edyhsgr.github.io/
 #
 #THERE IS NO WARRANTY FOR THIS CODE
@@ -12,6 +12,7 @@
 ##########
 
 library(shiny)
+library(gplots)
 
 CountyData_2020<-read.table(file="https://raw.githubusercontent.com/edyhsgr/Census2020RedistrictingDataReview/main/Tabulation_Counties_2020.csv",header=TRUE,sep=",")
 CountyData_2010<-read.table(file="https://raw.githubusercontent.com/edyhsgr/Census2020RedistrictingDataReview/main/Tabulation_Counties_2010.csv",header=TRUE,sep=",")
@@ -55,6 +56,8 @@ options = list(placeholder = "Type in a county to see graphs", multiple = TRUE, 
 
 radioButtons("radio","",c("Use Mean Absolute Percent Error (MAPE)" = 1, "Use Median Absolute Percent Error (MedAPE)" = 2),selected = 1),
 
+sliderInput("ITER","Sample size for error bound estimation",min=500,max=5000,value=1000,step=500),
+
 hr(),
 
 p("2020 Census Redistricting data downloaded in August 2021 from ",
@@ -83,7 +86,7 @@ tags$a(href="https://github.com/edyhsgr/Census2020RedistrictingDataReview",
 	"Related GitHub repository."),
 tags$a(href="https://edyhsgr.github.io/", 
 	"Eddie Hunsinger, "),
-"May 2022.")),
+"May 2022 (updated in June 2022.")),
 
 width=3
 ),
@@ -101,6 +104,17 @@ server<-function(input, output) {
 par(mfrow=c(1,2)) #,mai=c(0.5,0.5,0.5,0.5))
 
 ##GRAPHS
+
+iter<-input$ITER
+bootstrapper<-function(iter,data,low,high) { 
+	bootstrapMedian<-bootstrapMean<-array(,iter)
+	for(i in 1:length(bootstrapMean)) {
+		bootstrapMean[i]<-mean(sample(data,length(data),replace=TRUE))}
+	for(i in 1:length(bootstrapMedian)) {
+		bootstrapMedian[i]<-median(sample(data,length(data),replace=TRUE))}
+	return(c(bootstrapLowMean=quantile(bootstrapMean,low),bootstrapHighMean=quantile(bootstrapMean,high),
+		bootstrapLowMedian=quantile(bootstrapMedian,low),bootstrapHighMedian=quantile(bootstrapMedian,high)))}
+
 if(input$County=="") {
 plot.new()
 legend("topleft",legend=c("Select a county with the panel to the left"),cex=1.5,bty="n")
@@ -116,15 +130,21 @@ if(input$radio==1) {
 	County_StateSelect_2010<-merge(CountySelect_2010,StateSelect_2010,by="StateName")
 	
 	MAPE_Counties_National_2010<-mean(CountyData_2010$AbsPctError)
+
+	bootstrapState_2010<-bootstrapper(iter,CountyData_2010$AbsPctError[CountyData_2010$StateCode==County_StateSelect_2010$StateCode],.05,.95)
+	bootstrapNatl_2010<-bootstrapper(iter,CountyData_2010$AbsPctError,.05,.95)
 	
-	barplot(c(CountySelect_2010$AbsPctError,County_StateSelect_2010$MAPE_Counties,MAPE_Counties_National_2010),col=c("gold","limegreen","powderblue"),border=NA,ylim=c(0,10),
+	barplot2(c(CountySelect_2010$AbsPctError,County_StateSelect_2010$MAPE_Counties,MAPE_Counties_National_2010),
+		plot.ci=TRUE,ci.l=c(NA,bootstrapState_2010[1],bootstrapNatl_2010[1]),ci.u=c(NA,bootstrapState_2010[2],bootstrapNatl_2010[2]),		
+		col=c("gold","limegreen","powderblue"),border=NA,ylim=c(0,10),las=1,
 		names.arg=c(CountySelect_2010$CountyName,paste(c(CountySelect_2010$StateName," Counties"),collapse=""),
 		"Nationwide Counties"),cex.names=1.15,cex.axis=1.25,main="2010 Evaluation Estimates Total Population Error",cex.main=1.5)
-	mtext(side=1,line=-CountySelect_2010$AbsPctError-1.5,adj=.13,text=paste(c("APE: ",round(CountySelect_2010$AbsPctError,2)),collapse=""),font=.5,cex=1)
-	mtext(side=1,line=-County_StateSelect_2010$MAPE_Counties-1.5,adj=.5,text=paste(c("MAPE: ",round(County_StateSelect_2010$MAPE_Counties,2)),collapse=""),cex=1)
-	mtext(side=1,line=-MAPE_Counties_National_2010-1.5,adj=.87,text=paste(c("MAPE: ",round(MAPE_Counties_National_2010,2)),collapse=""),cex=1)
+	mtext(side=1,line=-CountySelect_2010$AbsPctError-1.25,adj=.13,text=paste(c("APE: ",round(CountySelect_2010$AbsPctError,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-County_StateSelect_2010$MAPE_Counties-1.25,adj=.5,text=paste(c("MAPE: ",round(County_StateSelect_2010$MAPE_Counties,2)),collapse=""),cex=1)
+	mtext(side=1,line=-MAPE_Counties_National_2010-1.25,adj=.89,text=paste(c("MAPE: ",round(MAPE_Counties_National_2010,2)),collapse=""),cex=1)
 
-	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MAPE is mean absolute percent error.")),cex=1.25)
+	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MAPE is mean absolute percent error. 
+		The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling with replacement.")),cex=1.15)
 	#####
 
 	#####2020 Mean Errors
@@ -133,15 +153,20 @@ if(input$radio==1) {
 	StateSelect_2020<-aggregate(CountyData_2020$AbsPctError,by=list(CountyData_2020$STATE),FUN=mean)
 	names(StateSelect_2020)<-c("STATE","MAPE_Counties")
 	County_StateSelect_2020<-merge(CountySelect_2020,StateSelect_2020,by="STATE")
-		
-	MAPE_Counties_National_2020<-mean(CountyData_2020$AbsPctError)
 	
-	barplot(c(CountySelect_2020$AbsPctError,County_StateSelect_2020$MAPE_Counties,MAPE_Counties_National_2020),col=c("gold","limegreen","powderblue"),border=NA,ylim=c(0,10),
+	MAPE_Counties_National_2020<-mean(CountyData_2020$AbsPctError)
+
+	bootstrapState_2020<-bootstrapper(iter,CountyData_2020$AbsPctError[CountyData_2020$STATE==County_StateSelect_2020$STATE],.05,.95)
+	bootstrapNatl_2020<-bootstrapper(iter,CountyData_2020$AbsPctError,.05,.95)
+	
+	barplot2(c(CountySelect_2020$AbsPctError,County_StateSelect_2020$MAPE_Counties,MAPE_Counties_National_2020),
+		plot.ci=TRUE,ci.l=c(NA,bootstrapState_2020[1],bootstrapNatl_2020[1]),ci.u=c(NA,bootstrapState_2020[2],bootstrapNatl_2020[2]),
+		col=c("gold","limegreen","powderblue"),ci.color=c(NA,1,1),border=NA,ylim=c(0,10),las=1,
 		names.arg=c(CountySelect_2020$NAME,paste(c(CountySelect_2020$NAME_STATE," Counties"),collapse=""),
 		"Nationwide Counties"),cex.names=1.15,cex.axis=1.25,main="2020 Evaluation Estimates Total Population Error",cex.main=1.5)
-	mtext(side=1,line=-CountySelect_2020$AbsPctError-1.5,adj=.13,text=paste(c("APE: ",round(CountySelect_2020$AbsPctError,2)),collapse=""),font=.5,cex=1)
-	mtext(side=1,line=-County_StateSelect_2020$MAPE_Counties-1.5,adj=.5,text=paste(c("MAPE: ",round(County_StateSelect_2020$MAPE_Counties,2)),collapse=""),cex=1)
-	mtext(side=1,line=-MAPE_Counties_National_2020-1.5,adj=.87,text=paste(c("MAPE: ",round(MAPE_Counties_National_2020,2)),collapse=""),cex=1)
+	mtext(side=1,line=-CountySelect_2020$AbsPctError-1.25,adj=.13,text=paste(c("APE: ",round(CountySelect_2020$AbsPctError,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-County_StateSelect_2020$MAPE_Counties-1.25,adj=.5,text=paste(c("MAPE: ",round(County_StateSelect_2020$MAPE_Counties,2)),collapse=""),cex=1)
+	mtext(side=1,line=-MAPE_Counties_National_2020-1.25,adj=.87,text=paste(c("MAPE: ",round(MAPE_Counties_National_2020,2)),collapse=""),cex=1)
 	#####
 	}
 
@@ -155,14 +180,20 @@ if(input$radio==2) {
 	
 	MedAPE_Counties_National_2010<-median(CountyData_2010$AbsPctError)
 	
-	barplot(c(CountySelect_2010$AbsPctError,County_StateSelect_2010$MedAPE_Counties,MedAPE_Counties_National_2010),col=c("gold","limegreen","powderblue"),border=NA,ylim=c(0,10),
+	bootstrapState_2010<-bootstrapper(iter,CountyData_2010$AbsPctError[CountyData_2010$StateCode==County_StateSelect_2010$StateCode],.05,.95)
+	bootstrapNatl_2010<-bootstrapper(iter,CountyData_2010$AbsPctError,.05,.95)
+	
+	barplot2(c(CountySelect_2010$AbsPctError,County_StateSelect_2010$MedAPE_Counties,MedAPE_Counties_National_2010),
+		plot.ci=TRUE,ci.l=c(NA,bootstrapState_2010[3],bootstrapNatl_2010[3]),ci.u=c(NA,bootstrapState_2010[4],bootstrapNatl_2010[4]),		
+		col=c("gold","limegreen","powderblue"),border=NA,ylim=c(0,10),las=1,
 		names.arg=c(CountySelect_2010$CountyName,paste(c(CountySelect_2010$StateName," Counties"),collapse=""),
 		"Nationwide Counties"),cex.names=1.15,cex.axis=1.25,main="2010 Evaluation Estimates Total Population Error",cex.main=1.5)
-	mtext(side=1,line=-CountySelect_2010$AbsPctError-1.5,adj=.13,text=paste(c("APE: ",round(CountySelect_2010$AbsPctError,2)),collapse=""),font=.5,cex=1)
-	mtext(side=1,line=-County_StateSelect_2010$MedAPE_Counties-1.5,adj=.5,text=paste(c("MedAPE: ",round(County_StateSelect_2010$MedAPE_Counties,2)),collapse=""),cex=1)
-	mtext(side=1,line=-MedAPE_Counties_National_2010-1.5,adj=.89,text=paste(c("MedAPE: ",round(MedAPE_Counties_National_2010,2)),collapse=""),cex=1)
+	mtext(side=1,line=-CountySelect_2010$AbsPctError-1.25,adj=.13,text=paste(c("APE: ",round(CountySelect_2010$AbsPctError,2)),collapse=""),font=.5,cex=1)
+	mtext(side=1,line=-County_StateSelect_2010$MedAPE_Counties-1.25,adj=.5,text=paste(c("MedAPE: ",round(County_StateSelect_2010$MedAPE_Counties,2)),collapse=""),cex=1)
+	mtext(side=1,line=-MedAPE_Counties_National_2010-1.25,adj=.89,text=paste(c("MedAPE: ",round(MedAPE_Counties_National_2010,2)),collapse=""),cex=1)
 
-	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MedAPE is median absolute percent error.")),cex=1.25)
+	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MedAPE is median absolute percent error. 
+		The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling with replacement.")),cex=1.15)
 	#####
 
 	#####2020 Median Errors
@@ -174,12 +205,17 @@ if(input$radio==2) {
 	
 	MedAPE_Counties_National_2020<-median(CountyData_2020$AbsPctError)
 	
-	barplot(c(CountySelect_2020$AbsPctError,County_StateSelect_2020$MedAPE_Counties,MedAPE_Counties_National_2020),col=c("gold","limegreen","powderblue"),border=NA,ylim=c(0,10),
+	bootstrapState_2020<-bootstrapper(iter,CountyData_2020$AbsPctError[CountyData_2020$STATE==County_StateSelect_2020$STATE],.05,.95)
+	bootstrapNatl_2020<-bootstrapper(iter,CountyData_2020$AbsPctError,.05,.95)
+	
+	barplot2(c(CountySelect_2020$AbsPctError,County_StateSelect_2020$MedAPE_Counties,MedAPE_Counties_National_2020),
+		plot.ci=TRUE,ci.l=c(NA,bootstrapState_2020[3],bootstrapNatl_2020[3]),ci.u=c(NA,bootstrapState_2020[4],bootstrapNatl_2020[4]),
+		col=c("gold","limegreen","powderblue"),ci.color=c(NA,1,1),border=NA,ylim=c(0,10),las=1,
 		names.arg=c(CountySelect_2020$NAME,paste(c(CountySelect_2020$NAME_STATE," Counties"),collapse=""),
 		"Nationwide Counties"),cex.names=1.15,cex.axis=1.25,main="2020 Evaluation Estimates Total Population Error",cex.main=1.5)
 	mtext(side=1,line=-CountySelect_2020$AbsPctError-1.5,adj=.13,text=paste(c("APE: ",round(CountySelect_2020$AbsPctError,2)),collapse=""),font=.5,cex=1)
 	mtext(side=1,line=-County_StateSelect_2020$MedAPE_Counties-1.5,adj=.5,text=paste(c("MedAPE: ",round(County_StateSelect_2020$MedAPE_Counties,2)),collapse=""),cex=1)
-	mtext(side=1,line=-MedAPE_Counties_National_2020-1.5,adj=.89,text=paste(c("MedAPE: ",round(MedAPE_Counties_National_2020,2)),collapse=""),cex=1)
+	mtext(side=1,line=-MedAPE_Counties_National_2020-1.5,adj=.87,text=paste(c("MedAPE: ",round(MedAPE_Counties_National_2020,2)),collapse=""),cex=1)
 	#####
 	}
 
