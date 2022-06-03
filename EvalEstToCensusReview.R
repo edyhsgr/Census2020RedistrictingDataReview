@@ -86,7 +86,7 @@ tags$a(href="https://github.com/edyhsgr/Census2020RedistrictingDataReview",
 	"Related GitHub repository."),
 tags$a(href="https://edyhsgr.github.io/", 
 	"Eddie Hunsinger, "),
-"May 2022 (updated in June 2022.")),
+"May 2022 (updated in June 2022).")),
 
 width=3
 ),
@@ -227,5 +227,4 @@ The error bars cover 90 percent of the uncertainty distribution for the respecti
 }
 
 shinyApp(ui = ui, server = server)
-
 
