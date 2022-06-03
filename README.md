@@ -31,5 +31,5 @@ Tabulations_County_2020.csv, with the OUTPUT comparisons by county for each stat
 EvalEstToCensusReview.R is a Shiny for R application: https://edyhsgr.shinyapps.io/EvalEstToCensusReview/ 
 to review US Census Bureau Evaluation Estimates county total population errors.
 
--Eddie Hunsinger, August 2021 (updated May 2022)
+-Eddie Hunsinger, August 2021 (updated June 2022)
 
