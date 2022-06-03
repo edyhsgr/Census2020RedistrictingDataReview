@@ -42,7 +42,7 @@ Names<-CountyData_2020$NAME_FULL[CountyData_2020$NAME_FULL!="Chugach Census Area
 
 ui<-fluidPage(
 
-tags$h3("Review of US Census Bureau's 2010 and 2020 Evaluation Estimates, County Total Population Errors"),
+tags$h3("Draft - Review of US Census Bureau's 2010 and 2020 Evaluation Estimates, County Total Population Errors"),
   
 hr(),
 
@@ -144,7 +144,7 @@ if(input$radio==1) {
 	mtext(side=1,line=-MAPE_Counties_National_2010-1.25,adj=.89,text=paste(c("MAPE: ",round(MAPE_Counties_National_2010,2)),collapse=""),cex=1)
 
 	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MAPE is mean absolute percent error. 
-		The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling with replacement.")),cex=1.15)
+The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling with replacement.")),cex=1.15)
 	#####
 
 	#####2020 Mean Errors
@@ -193,7 +193,7 @@ if(input$radio==2) {
 	mtext(side=1,line=-MedAPE_Counties_National_2010-1.25,adj=.89,text=paste(c("MedAPE: ",round(MedAPE_Counties_National_2010,2)),collapse=""),cex=1)
 
 	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MedAPE is median absolute percent error. 
-		The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling with replacement.")),cex=1.15)
+The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling with replacement.")),cex=1.15)
 	#####
 
 	#####2020 Median Errors
