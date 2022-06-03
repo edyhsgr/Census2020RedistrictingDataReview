@@ -145,7 +145,7 @@ if(input$radio==1) {
 	mtext(side=1,line=-MAPE_Counties_National_2010-1.25,adj=.89,text=paste(c("MAPE: ",round(MAPE_Counties_National_2010,2)),collapse=""),cex=1)
 
 	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MAPE is mean absolute percent error. 
-The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's data with replacement.")),cex=1.15)
+The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
 	#####
 
 	#####2020 Mean Errors
@@ -194,7 +194,7 @@ if(input$radio==2) {
 	mtext(side=1,line=-MedAPE_Counties_National_2010-1.25,adj=.89,text=paste(c("MedAPE: ",round(MedAPE_Counties_National_2010,2)),collapse=""),cex=1)
 
 	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MedAPE is median absolute percent error. 
-The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's data with replacement.")),cex=1.15)
+The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
 	#####
 
 	#####2020 Median Errors
@@ -228,4 +228,4 @@ The error bars cover 90 percent of the uncertainty distribution for the respecti
 
 shinyApp(ui = ui, server = server)
 
-.
+
