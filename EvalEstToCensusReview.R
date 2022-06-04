@@ -42,7 +42,7 @@ Names<-CountyData_2020$NAME_FULL[CountyData_2020$NAME_FULL!="Chugach Census Area
 
 ui<-fluidPage(
 
-tags$h3("Draft - Review of US Census Bureau's 2010 and 2020 Evaluation Estimates, County Total Population Errors"),
+tags$h3("Review of US Census Bureau's 2010 and 2020 Evaluation Estimates, County Total Population Errors"),
   
 hr(),
 
