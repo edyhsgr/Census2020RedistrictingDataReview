@@ -200,7 +200,7 @@ if(input$radio==3) {
 	mtext(side=1,line=-18,adj=.89,text=paste(c("MALPE: ",round(MALPE_Counties_National_2010,2)),collapse=""),cex=1)
 	abline(a=NULL, b=NULL, h=0, v=NULL)
 	
-	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. ALPE is algebraic percent error (or percent error), and MALPE is mean algebraic percent error. 
+	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. ALPE is algebraic percent error (or signed percent error), and MALPE is mean algebraic percent error. 
 The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
 	#####
 	
@@ -280,7 +280,7 @@ The error bars cover 90 percent of the uncertainty distribution for the respecti
   }
   
   if(input$radio==4) {
-    #####2010 Median Errors	##NOTE, SHOULD ADD SOMETHING MORE (THAN TEXT VALUE) TO IDENTIFY BARS THAT EXPAND OUTSIDE OF PLOT AREA
+    #####2010 Median Errors
     CountySelect_2010<-subset(CountyData_2010,CountyData_2010$FullName==input$County) 
     
     StateSelect_2010<-aggregate(CountyData_2010$PctError,by=list(CountyData_2010$StateName),FUN=median)
@@ -302,7 +302,7 @@ The error bars cover 90 percent of the uncertainty distribution for the respecti
     mtext(side=1,line=-18,adj=.89,text=paste(c("MedALPE: ",round(MedALPE_Counties_National_2010,2)),collapse=""),cex=1)
     abline(a=NULL, b=NULL, h=0, v=NULL)
     
-    mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. ALPE is algebraic percent error (or percent error), and MedALPE is median algebraic percent error. 
+    mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. ALPE is algebraic percent error (or signed percent error), and MedALPE is median algebraic percent error. 
 The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
     #####
     
@@ -337,4 +337,5 @@ The error bars cover 90 percent of the uncertainty distribution for the respecti
 }
 
 shinyApp(ui = ui, server = server)
+
 
