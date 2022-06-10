@@ -150,7 +150,7 @@ if(input$radio==1) {
 	abline(a=NULL, b=NULL, h=0, v=NULL)
 
 	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MAPE is mean absolute percent error. 
-The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
+The error bars cover the middle 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
 	#####
 
 	#####2020 Mean Absolute Errors
@@ -201,7 +201,7 @@ if(input$radio==3) {
 	abline(a=NULL, b=NULL, h=0, v=NULL)
 	
 	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. ALPE is algebraic percent error (or signed percent error), and MALPE is mean algebraic percent error. 
-The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
+The error bars cover the middle 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
 	#####
 	
 	#####2020 Mean Errors
@@ -252,7 +252,7 @@ if(input$radio==2) {
 	abline(a=NULL, b=NULL, h=0, v=NULL)
 
 	mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. APE is absolute percent error and MedAPE is median absolute percent error. 
-The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
+The error bars cover the middle 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
 	#####
 
 	#####2020 Median Errors
@@ -303,7 +303,7 @@ The error bars cover 90 percent of the uncertainty distribution for the respecti
     abline(a=NULL, b=NULL, h=0, v=NULL)
     
     mtext(side=1,line=4,adj=0,text=paste(c("'Counties' includes all county-equivalent areas. ALPE is algebraic percent error (or signed percent error), and MedALPE is median algebraic percent error. 
-The error bars cover 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
+The error bars cover the middle 90 percent of the uncertainty distribution for the respective measurement, estimated by random sampling from the area's counties with replacement.")),cex=1)
     #####
     
     #####2020 Median Errors
